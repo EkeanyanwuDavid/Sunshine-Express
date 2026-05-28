@@ -1,20 +1,40 @@
+import React from "react";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import Navbar from "./components/Nav";
+import Dashboard from "./pages/Dashboard";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
 function App() {
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white shadow">
-        <nav className="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
-          <h1 className="text-2xl font-bold text-gray-900">Goal Tracker</h1>
-        </nav>
-      </header>
-      <main className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
-        <div className="rounded-lg bg-white p-6 shadow">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Welcome</h2>
-          <p className="text-gray-600">
-            Get started by connecting to your backend API.
-          </p>
-        </div>
-      </main>
-    </div>
+    <BrowserRouter>
+      <Navbar />
+      <Routes>
+        <Route path="/" element={<Dashboard />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route
+          path="*"
+          element={
+            <h1 className="text-center mt-20 text-3xl font-bold">
+              404 Not Found
+            </h1>
+          }
+        />
+      </Routes>
+      <ToastContainer
+        position="top-right"
+        autoClose={2200}
+        hideProgressBar
+        theme="dark"
+        bodyClassName={() => "text-sm font-medium"}
+        progressClassName={() => "bg-orange-500"}
+        toastClassName={() =>
+          "relative flex p-4 rounded-2xl overflow-hidden cursor-pointer bg-zinc-900 text-white shadow-2xl border border-zinc-800"
+        }
+      />
+    </BrowserRouter>
   );
 }
 
