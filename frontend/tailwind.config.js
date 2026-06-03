@@ -4,8 +4,8 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ["Nunito", "sans-serif"],
-        body: ["Inter", "sans-serif"],
+        sans: ["DM Sans", "sans-serif"],
+        display: ["Poppins", "sans-serif"],
       },
     },
   },

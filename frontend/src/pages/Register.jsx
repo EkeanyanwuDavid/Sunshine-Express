@@ -13,6 +13,8 @@ import {
   FaEyeSlash,
   FaPhone,
   FaSun,
+  FaExclamationCircle,
+  FaCheckCircle,
 } from "react-icons/fa";
 import { Link } from "react-router-dom";
 function Register() {
@@ -36,7 +38,12 @@ function Register() {
 
   useEffect(() => {
     if (isError) {
-      toast.error(message);
+      toast.error(
+        <div className="flex items-center gap-2">
+          <FaExclamationCircle className="text-lg shrink-0" />
+          <span>{message || "Registration failed. Please try again."}</span>
+        </div>,
+      );
       dispatch(reset());
     }
   }, [isError, message, dispatch]);
@@ -93,10 +100,21 @@ function Register() {
     try {
       await dispatch(register(userData)).unwrap();
       console.log("Register success");
-      navigate("/");
+      toast.success(
+        <div className="flex items-center gap-2">
+          <FaCheckCircle className="text-lg shrink-0" />
+          <span>Account created! Redirecting...</span>
+        </div>,
+      );
+      setTimeout(() => navigate("/"), 500);
     } catch (error) {
       console.error("Register failed", error);
-      toast.error(error || "Registration failed");
+      toast.error(
+        <div className="flex items-center gap-2">
+          <FaExclamationCircle className="text-lg shrink-0" />
+          <span>{error?.message || "Registration failed"}</span>
+        </div>,
+      );
     }
   };
 

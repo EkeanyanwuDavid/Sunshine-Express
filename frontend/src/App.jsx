@@ -6,6 +6,7 @@ import Navbar from "./components/Nav";
 import Dashboard from "./pages/Dashboard";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import Products from "./pages/Products";
 function App() {
   return (
     <BrowserRouter>
@@ -14,6 +15,7 @@ function App() {
         <Route path="/" element={<Dashboard />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/product/:id" element={<Products />} />
         <Route
           path="*"
           element={
@@ -25,14 +27,14 @@ function App() {
       </Routes>
       <ToastContainer
         position="top-right"
-        autoClose={2200}
-        hideProgressBar
-        theme="dark"
-        bodyClassName={() => "text-sm font-medium"}
-        progressClassName={() => "bg-orange-500"}
-        toastClassName={() =>
-          "relative flex p-4 rounded-2xl overflow-hidden cursor-pointer bg-zinc-900 text-white shadow-2xl border border-zinc-800"
-        }
+        autoClose={3000}
+        newestOnTop
+        closeOnClick
+        pauseOnHover
+        draggable
+        closeButton={false}
+        hideProgressBar={false}
+        limit={3}
       />
     </BrowserRouter>
   );

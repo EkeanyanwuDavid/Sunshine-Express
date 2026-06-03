@@ -34,11 +34,17 @@ export const login = createAsyncThunk("auth/login", async (user, thunkAPI) => {
   try {
     return await authService.login(user);
   } catch (error) {
-    const message =
-      (error.response && error.response.data && error.response.data.message) ||
-      error.message ||
-      error.toString();
+    let message = "Something went wrong";
 
+    if (!navigator.onLine) {
+      message = "No internet connection";
+    } else if (error.message === "Network Error") {
+      message = "Unable to reach the server";
+    } else if (error.response?.status === 500) {
+      message = "Internal server error";
+    } else if (error.response?.data?.message) {
+      message = error.response.data.message;
+    }
     return thunkAPI.rejectWithValue(message);
   }
 });

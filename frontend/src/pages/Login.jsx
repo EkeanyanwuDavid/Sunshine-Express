@@ -1,5 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { FaEnvelope, FaLock, FaEye, FaEyeSlash, FaSun } from "react-icons/fa";
+import {
+  FaEnvelope,
+  FaLock,
+  FaEye,
+  FaEyeSlash,
+  FaSun,
+  FaExclamationCircle,
+  FaCheckCircle,
+} from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useDispatch, useSelector } from "react-redux";
@@ -25,7 +33,12 @@ function Login() {
 
   useEffect(() => {
     if (isError) {
-      toast.error(message);
+      toast.error(
+        <div className="flex items-center gap-2">
+          <FaExclamationCircle className="text-lg shrink-0" />
+          <span>{message || "Login failed. Please try again."}</span>
+        </div>,
+      );
       dispatch(reset());
     }
 
@@ -84,6 +97,12 @@ function Login() {
       await dispatch(login(userData)).unwrap();
 
       console.log("Login success");
+      toast.success(
+        <div className="flex items-center gap-2">
+          <FaSun className="text-orange-600 text-lg" />
+          <span>Welcome back! Redirecting...</span>
+        </div>,
+      );
       navigate("/");
     } catch (error) {
       console.log("Login failed", error);

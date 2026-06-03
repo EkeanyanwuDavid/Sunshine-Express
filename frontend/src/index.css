@@ -1,1 +1,131 @@
 @import "tailwindcss";
+
+/* Toast Container */
+.Toastify__toast-container {
+  width: 400px;
+  padding: 16px;
+}
+
+/* Base Toast */
+.Toastify__toast {
+  font-family: "DM Sans", sans-serif;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  min-height: auto;
+  border: none;
+  background-color: #ffffff;
+  color: #1f2937;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.Toastify__toast-body {
+  color: #1f2937;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* Success Toast - Orange */
+.Toastify__toast--success {
+  background-color: #ffffff;
+  border-left: 4px solid #ff6b35;
+}
+
+.Toastify__toast--success .Toastify__toast-body {
+  color: #1f2937;
+}
+
+.Toastify__toast--success .Toastify__toast-body svg,
+.Toastify__toast--success .Toastify__toast-body i {
+  color: #ff6b35;
+  font-size: 18px;
+}
+
+/* Error Toast - Amazon Red */
+.Toastify__toast--error {
+  background-color: #ffffff;
+  border-left: 4px solid #dc2626;
+}
+
+.Toastify__toast--error .Toastify__toast-body {
+  color: #1f2937;
+}
+
+.Toastify__toast--error .Toastify__toast-body svg,
+.Toastify__toast--error .Toastify__toast-body i {
+  color: #dc2626;
+  font-size: 18px;
+}
+
+/* Info Toast - Amazon/Jumia Blue */
+.Toastify__toast--info {
+  background-color: #ffffff;
+  border-left: 4px solid #2563eb;
+}
+
+.Toastify__toast--info .Toastify__toast-body {
+  color: #1f2937;
+}
+
+.Toastify__toast--info .Toastify__toast-body svg,
+.Toastify__toast--info .Toastify__toast-body i {
+  color: #2563eb;
+  font-size: 18px;
+}
+
+/* Warning Toast - Amazon Orange */
+.Toastify__toast--warning {
+  background-color: #ffffff;
+  border-left: 4px solid #f59e0b;
+}
+
+.Toastify__toast--warning .Toastify__toast-body {
+  color: #1f2937;
+}
+
+.Toastify__toast--warning .Toastify__toast-body svg,
+.Toastify__toast--warning .Toastify__toast-body i {
+  color: #f59e0b;
+  font-size: 18px;
+}
+
+/* Progress Bar */
+.Toastify__progress-bar {
+  height: 2px;
+}
+
+.Toastify__toast--success .Toastify__progress-bar {
+  background: #ff6b35;
+}
+
+.Toastify__toast--error .Toastify__progress-bar {
+  background: #dc2626;
+}
+
+.Toastify__toast--info .Toastify__progress-bar {
+  background: #2563eb;
+}
+
+.Toastify__toast--warning .Toastify__progress-bar {
+  background: #f59e0b;
+}
+
+/* Mobile Responsive */
+@media (max-width: 480px) {
+  .Toastify__toast-container {
+    width: calc(100vw - 32px);
+    left: 16px;
+    right: 16px;
+  }
+
+  .Toastify__toast {
+    padding: 12px;
+  }
+}

@@ -4,17 +4,30 @@ import { useNavigate } from "react-router-dom";
 import authService from "../features/auth/authService";
 import { logout } from "../features/auth/authSlice";
 import {
+  removeFromCart,
+  clearCart,
+  increaseQty,
+  decreasedQty,
+} from "../features/cart/cartSlice";
+import {
   FaSignInAlt,
   FaUser,
   FaBars,
   FaTimes,
   FaSun,
   FaSignOutAlt,
+  FaShoppingCart,
+  FaTrash,
+  FaPlus,
+  FaMinus,
+  FaExclamationTriangle,
 } from "react-icons/fa";
 import { Link } from "react-router-dom";
 
 function Nav() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [cartOpen, setCartOpen] = useState(false);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -26,6 +39,14 @@ function Nav() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { user } = useSelector((state) => state.auth);
+  const { cartItems } = useSelector((state) => state.cart);
+
+  const handleLogout = () => {
+    authService.logout();
+    dispatch(logout());
+    setShowLogoutModal(false);
+    navigate("/login");
+  };
   return (
     <>
       <header
@@ -68,16 +89,137 @@ function Nav() {
                 </Link>
               </>
             ) : (
-              <button
-                onClick={() => {
-                  authService.logout();
-                  dispatch(logout());
-                  navigate("/login");
-                }}
-                className="px-4 py-2 text-sm font-semibold text-orange-600 border border-orange-200 bg-white hover:bg-orange-50 rounded-md transition-all duration-150 flex items-center gap-2"
-              >
-                <FaSignOutAlt className="text-[14px]" /> Logout
-              </button>
+              <>
+                <div className="relative">
+                  <button
+                    onClick={() => setCartOpen(!cartOpen)}
+                    className="relative flex items-center justify-center w-10 h-10 text-orange-600 hover:text-orange-700 hover:bg-orange-50 rounded-2xl transition-all duration-150"
+                  >
+                    <FaShoppingCart className="text-lg" />
+                    {cartItems.length > 0 && (
+                      <span className="absolute -top-1 -right-1 bg-orange-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                        {cartItems.length}
+                      </span>
+                    )}
+                  </button>
+
+                  {cartOpen && (
+                    <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-zinc-200 z-40">
+                      <div className="p-4 border-b border-zinc-100 flex justify-between items-center">
+                        <h3 className="text-sm font-bold text-zinc-800">
+                          Shopping Cart
+                        </h3>
+                        <button
+                          onClick={() => setCartOpen(false)}
+                          className="text-zinc-500 hover:text-zinc-700"
+                        >
+                          <FaTimes />
+                        </button>
+                      </div>
+
+                      <div className="max-h-96 overflow-y-auto">
+                        {cartItems.length === 0 ? (
+                          <div className="p-4 text-center text-zinc-500 text-sm">
+                            Your cart is empty
+                          </div>
+                        ) : (
+                          cartItems.map((item) => (
+                            <div
+                              key={item.id}
+                              className="p-4 border-b border-zinc-100 flex justify-between items-start gap-3"
+                            >
+                              <img
+                                src={item.image}
+                                alt={item.name}
+                                className="w-16 h-16 object-cover rounded"
+                              />
+                              <div className="flex-1">
+                                <p className="text-sm font-medium text-zinc-800">
+                                  {item.name}
+                                </p>
+                                <div className="flex items-center gap-2 mt-2">
+                                  <button
+                                    onClick={() =>
+                                      dispatch(decreasedQty(item.id))
+                                    }
+                                    className="p-1 text-xs bg-zinc-200 text-zinc-700 rounded hover:bg-zinc-300 transition"
+                                  >
+                                    <FaMinus />
+                                  </button>
+                                  <span className="text-xs font-semibold text-zinc-700 w-6 text-center">
+                                    {item.qty}
+                                  </span>
+                                  <button
+                                    onClick={() =>
+                                      dispatch(increaseQty(item.id))
+                                    }
+                                    className="p-1 text-xs bg-orange-600 text-white rounded hover:bg-orange-700 transition"
+                                  >
+                                    <FaPlus />
+                                  </button>
+                                </div>
+                                <p className="text-sm font-bold text-orange-600 mt-2">
+                                  {item.price}
+                                </p>
+                              </div>
+                              <button
+                                onClick={() =>
+                                  dispatch(removeFromCart(item.id))
+                                }
+                                className="text-red-500 hover:text-red-700"
+                              >
+                                <FaTrash className="text-xs" />
+                              </button>
+                            </div>
+                          ))
+                        )}
+                      </div>
+
+                      {cartItems.length > 0 && (
+                        <div className="p-4 border-t border-zinc-100">
+                          <div className="flex justify-between items-center mb-4 pb-3 border-b border-zinc-100">
+                            <span className="text-sm font-medium text-zinc-600">
+                              Total:
+                            </span>
+                            <span className="text-lg font-bold text-orange-600">
+                              ₦
+                              {cartItems
+                                .reduce((total, item) => {
+                                  const price = parseInt(
+                                    item.price.replace(/[^\d]/g, ""),
+                                  );
+                                  return total + price * item.qty;
+                                }, 0)
+                                .toLocaleString()}
+                            </span>
+                          </div>
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => {
+                                dispatch(clearCart());
+                                setCartOpen(false);
+                              }}
+                              className="flex-1 px-3 py-2 text-xs bg-zinc-200 text-zinc-700 rounded hover:bg-zinc-300 transition"
+                            >
+                              Clear Cart
+                            </button>
+                            <button className="flex-1 px-3 py-2 text-xs bg-orange-600 text-white rounded hover:bg-orange-700 transition">
+                              Checkout
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                <button
+                  onClick={() => setShowLogoutModal(true)}
+                  className="px-4 py-2 text-sm font-semibold text-orange-600 border border-orange-200 bg-white hover:bg-orange-50 rounded-md transition-all duration-150 flex items-center gap-2"
+                >
+                  <FaSignOutAlt className="text-[14px]" /> Logout
+                </button>
+              </>
             )}
           </div>
 
@@ -135,9 +277,7 @@ function Nav() {
                 <button
                   onClick={() => {
                     setMenuOpen(false);
-                    authService.logout();
-                    dispatch(logout());
-                    navigate("/login");
+                    setShowLogoutModal(true);
                   }}
                   className="flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-white bg-orange-600 rounded-md hover:bg-orange-700 transition-all duration-150"
                 >
@@ -148,6 +288,42 @@ function Nav() {
           </div>
         </div>
       </header>
+
+      {/* Logout Confirmation Modal */}
+      {showLogoutModal && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-xl max-w-sm w-full p-6 border border-zinc-200">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
+                <FaExclamationTriangle className="text-red-600 text-lg" />
+              </div>
+              <h2 className="text-lg font-bold text-zinc-900">
+                Confirm Logout
+              </h2>
+            </div>
+
+            <p className="text-zinc-600 text-sm mb-6">
+              Are you sure you want to logout? You'll need to sign in again to
+              continue shopping.
+            </p>
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowLogoutModal(false)}
+                className="flex-1 px-4 py-2.5 text-sm font-medium text-zinc-700 bg-zinc-100 rounded-lg hover:bg-zinc-200 transition"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleLogout}
+                className="flex-1 px-4 py-2.5 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 transition flex items-center justify-center gap-2"
+              >
+                <FaSignOutAlt className="text-sm" /> Logout
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="h-16"></div>
     </>
