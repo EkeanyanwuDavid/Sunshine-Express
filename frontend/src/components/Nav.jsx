@@ -93,7 +93,7 @@ function Nav() {
                 <div className="relative">
                   <button
                     onClick={() => setCartOpen(!cartOpen)}
-                    className="relative flex items-center justify-center w-10 h-10 text-orange-600 hover:text-orange-700 hover:bg-orange-50 rounded-2xl transition-all duration-150"
+                    className="relative flex items-center justify-center w-10 h-10 text-orange-600 hover:text-orange-700 hover:bg-orange-50 rounded-full transition-all duration-150"
                   >
                     <FaShoppingCart className="text-lg" />
                     {cartItems.length > 0 && (
