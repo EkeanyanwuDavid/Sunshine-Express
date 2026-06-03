@@ -111,7 +111,7 @@ const Dashboard = () => {
                   </h3>
 
                   <p className="text-orange-600 font-semibold text-sm mt-1">
-                    {product.price}
+                    ₦{product.price.toLocaleString()}
                   </p>
 
                   <button className="mt-2 w-full py-2 text-xs bg-orange-600 cursor-pointer text-white rounded-lg hover:bg-orange-700 transition">

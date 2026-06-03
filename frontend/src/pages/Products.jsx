@@ -52,6 +52,19 @@ const Products = () => {
     );
   }
 
+  const handleBuyNow = () => {
+    if (!user) {
+      toast.info("Sign up to continue");
+      setTimeout(() => {
+        navigate("/register");
+      }, 1200);
+
+      return;
+    }
+
+    dispatch(addToCart(product));
+    navigate("/checkout");
+  };
   const handleAddCart = () => {
     if (!user) {
       toast.info(
@@ -133,7 +146,7 @@ const Products = () => {
             </div>
 
             <p className="mt-5 text-3xl font-bold text-orange-600">
-              {product.price}
+              ₦{product.price.toLocaleString()}
             </p>
 
             <p className="mt-6 text-zinc-600 leading-relaxed">
@@ -174,7 +187,10 @@ const Products = () => {
                 Add to Cart
               </button>
 
-              <button className="flex-1 px-6 py-3 border border-zinc-300 rounded-xl hover:bg-zinc-100 transition font-medium">
+              <button
+                onClick={handleBuyNow}
+                className="flex-1 px-6 py-3 border border-zinc-300 rounded-xl hover:bg-zinc-100 transition font-medium"
+              >
                 Buy Now
               </button>
             </div>

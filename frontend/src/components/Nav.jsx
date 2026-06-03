@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import authService from "../features/auth/authService";
@@ -27,6 +27,7 @@ import { Link } from "react-router-dom";
 function Nav() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
+  const cartRef = useRef(null);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   useEffect(() => {
@@ -35,6 +36,21 @@ function Nav() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (cartRef.current && !cartRef.current.contains(event.target)) {
+        setCartOpen(false);
+      }
+    };
+
+    if (cartOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [cartOpen]);
   const navLinks = ["Features", "Pricing", "About", "Contact"];
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -104,7 +120,10 @@ function Nav() {
                   </button>
 
                   {cartOpen && (
-                    <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-zinc-200 z-40">
+                    <div
+                      ref={cartRef}
+                      className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-zinc-200 z-40"
+                    >
                       <div className="p-4 border-b border-zinc-100 flex justify-between items-center">
                         <h3 className="text-sm font-bold text-zinc-800">
                           Shopping Cart
@@ -159,7 +178,7 @@ function Nav() {
                                   </button>
                                 </div>
                                 <p className="text-sm font-bold text-orange-600 mt-2">
-                                  {item.price}
+                                  ₦{(item.price || 0).toLocaleString()}
                                 </p>
                               </div>
                               <button
@@ -181,18 +200,20 @@ function Nav() {
                             <span className="text-sm font-medium text-zinc-600">
                               Total:
                             </span>
+
                             <span className="text-lg font-bold text-orange-600">
                               ₦
                               {cartItems
                                 .reduce((total, item) => {
-                                  const price = parseInt(
-                                    item.price.replace(/[^\d]/g, ""),
-                                  );
-                                  return total + price * item.qty;
+                                  const price = Number(item.price) || 0;
+                                  const qty = item.qty || 1;
+
+                                  return total + price * qty;
                                 }, 0)
                                 .toLocaleString()}
                             </span>
                           </div>
+
                           <div className="flex gap-2">
                             <button
                               onClick={() => {
@@ -203,7 +224,16 @@ function Nav() {
                             >
                               Clear Cart
                             </button>
-                            <button className="flex-1 px-3 py-2 text-xs bg-orange-600 text-white rounded hover:bg-orange-700 transition">
+
+                            <button
+                              disabled={!cartItems.length}
+                              onClick={() => navigate("/checkout")}
+                              className={`px-3 py-2 text-xs rounded flex-1 text-white transition ${
+                                cartItems.length
+                                  ? "bg-orange-600 hover:bg-orange-700"
+                                  : "bg-zinc-300 cursor-not-allowed"
+                              }`}
+                            >
                               Checkout
                             </button>
                           </div>

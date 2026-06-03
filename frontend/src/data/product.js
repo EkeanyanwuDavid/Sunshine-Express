@@ -11,7 +11,7 @@ export const products = [
   {
     id: 1,
     name: "WristWatch",
-    price: "₦60,000",
+    price: 60000,
     image: Watch,
     description: "Premium watch  for everyday use",
     rating: 4.7,
@@ -20,7 +20,7 @@ export const products = [
   {
     id: 2,
     name: "Stylish Sneakers",
-    price: "₦30,000",
+    price: 30000,
     image: Shoe,
     description: "Comfortable sneakers for daily wear.",
     rating: 4.3,
@@ -29,7 +29,7 @@ export const products = [
   {
     id: 3,
     name: "Stylish Glasses",
-    price: "₦15,000",
+    price: 15000,
     image: Glasses,
     description: "Modern glasses with a premium look.",
     rating: 4.1,
@@ -38,7 +38,7 @@ export const products = [
   {
     id: 4,
     name: "Surface Cleaner",
-    price: "₦10,000",
+    price: 10000,
     image: Mitzie,
     description: "Surface cleaner for cleaner surroundings.",
     rating: 3.9,
@@ -47,7 +47,7 @@ export const products = [
   {
     id: 5,
     name: "Makeup Set",
-    price: "₦20,000",
+    price: 20000,
     image: Makeup,
     description: "Makeup set for everyday use.",
     rating: 4.9,
@@ -57,7 +57,7 @@ export const products = [
   {
     id: 6,
     name: "Face Cream",
-    price: "₦15,000",
+    price: 15000,
     image: FaceCream,
     description: "Complete skincare routine in one package.",
     rating: 5.0,
