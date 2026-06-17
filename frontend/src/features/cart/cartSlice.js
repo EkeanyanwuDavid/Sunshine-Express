@@ -1,85 +1,167 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
-const cartItemsFromStorage = localStorage.getItem("cartItems")
-  ? JSON.parse(localStorage.getItem("cartItems"))
-  : [];
+const apiUrl = import.meta.env.VITE_API_URL;
 
 const initialState = {
-  cartItems: cartItemsFromStorage,
-  productQty: {}, // Store quantity for each product on product page
+  cartItems: [],
+  productQty: {},
+  isLoading: false,
+  isError: false,
+  message: "",
 };
+
+export const fetchCart = createAsyncThunk("cart/fetch", async (_, thunkAPI) => {
+  try {
+    const { user } = thunkAPI.getState().auth;
+    const res = await fetch(`${apiUrl}/api/cart`, {
+      headers: { Authorization: `Bearer ${user.token}` },
+    });
+    if (!res.ok) throw new Error("Failed to load cart");
+    return await res.json();
+  } catch (error) {
+    return thunkAPI.rejectWithValue(error.message);
+  }
+});
+
+export const addToCart = createAsyncThunk(
+  "cart/add",
+  async (item, thunkAPI) => {
+    try {
+      const { user } = thunkAPI.getState().auth;
+      const res = await fetch(`${apiUrl}/api/cart`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${user.token}`,
+        },
+        body: JSON.stringify({
+          id: item.id,
+          name: item.name,
+          price: item.price,
+          image: item.image,
+          qty: item.qty,
+        }),
+      });
+      if (!res.ok) throw new Error("Failed to add to cart");
+      return await res.json();
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.message);
+    }
+  },
+);
+
+export const removeFromCart = createAsyncThunk(
+  "cart/remove",
+  async (id, thunkAPI) => {
+    try {
+      const { user } = thunkAPI.getState().auth;
+      const res = await fetch(`${apiUrl}/api/cart/${id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${user.token}` },
+      });
+      if (!res.ok) throw new Error("Failed to remove item");
+      return await res.json();
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.message);
+    }
+  },
+);
+
+export const increaseQty = createAsyncThunk(
+  "cart/increase",
+  async (id, thunkAPI) => {
+    try {
+      const { user } = thunkAPI.getState().auth;
+      const res = await fetch(`${apiUrl}/api/cart/${id}/increase`, {
+        method: "PATCH",
+        headers: { Authorization: `Bearer ${user.token}` },
+      });
+      if (!res.ok) throw new Error("Failed to update quantity");
+      return await res.json();
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.message);
+    }
+  },
+);
+
+export const decreasedQty = createAsyncThunk(
+  "cart/decrease",
+  async (id, thunkAPI) => {
+    try {
+      const { user } = thunkAPI.getState().auth;
+      const res = await fetch(`${apiUrl}/api/cart/${id}/decrease`, {
+        method: "PATCH",
+        headers: { Authorization: `Bearer ${user.token}` },
+      });
+      if (!res.ok) throw new Error("Failed to update quantity");
+      return await res.json();
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.message);
+    }
+  },
+);
+
+export const clearCart = createAsyncThunk("cart/clear", async (_, thunkAPI) => {
+  try {
+    const { user } = thunkAPI.getState().auth;
+    const res = await fetch(`${apiUrl}/api/cart`, {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${user.token}` },
+    });
+    if (!res.ok) throw new Error("Failed to clear cart");
+    return await res.json();
+  } catch (error) {
+    return thunkAPI.rejectWithValue(error.message);
+  }
+});
 
 const cartSlice = createSlice({
   name: "cart",
   initialState,
   reducers: {
-    addToCart: (state, action) => {
-      const item = action.payload;
-
-      const qtyToAdd = item.qty ? Number(item.qty) : 1;
-
-      const existingItem = state.cartItems.find((x) => x.id === item.id);
-
-      if (existingItem) {
-        existingItem.qty = Number(existingItem.qty || 0) + qtyToAdd;
-      } else {
-        state.cartItems.push({
-          ...item,
-          qty: qtyToAdd,
-        });
-      }
-
-      localStorage.setItem("cartItems", JSON.stringify(state.cartItems));
-    },
-    removeFromCart: (state, action) => {
-      const idToRemove = String(action.payload);
-
-      state.cartItems = state.cartItems.filter(
-        (item) => String(item.id) !== idToRemove,
-      );
-
-      localStorage.setItem("cartItems", JSON.stringify(state.cartItems));
-    },
-
-    increaseQty: (state, action) => {
-      const item = state.cartItems.find((x) => x.id === action.payload);
-      if (item) {
-        item.qty = Number(item.qty || 0) + 1;
-      }
-      localStorage.setItem("cartItems", JSON.stringify(state.cartItems));
-    },
-    decreasedQty: (state, action) => {
-      const item = state.cartItems.find((x) => x.id === action.payload);
-      if (item && item.qty > 1) {
-        item.qty = Number(item.qty || 0) - 1;
-      }
-      localStorage.setItem("cartItems", JSON.stringify(state.cartItems));
-    },
-    clearCart: (state) => {
-      state.cartItems = [];
-      localStorage.removeItem("cartItems");
-    },
-
     setProductQty: (state, action) => {
       const { productId, qty } = action.payload;
       state.productQty[productId] = qty;
     },
-
     resetProductQty: (state, action) => {
-      const productId = action.payload;
-      delete state.productQty[productId];
+      delete state.productQty[action.payload];
     },
+    resetCartState: (state) => {
+      state.cartItems = [];
+    },
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchCart.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(fetchCart.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.cartItems = action.payload;
+      })
+      .addCase(fetchCart.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = true;
+        state.message = action.payload;
+      })
+      .addCase(addToCart.fulfilled, (state, action) => {
+        state.cartItems = action.payload;
+      })
+      .addCase(removeFromCart.fulfilled, (state, action) => {
+        state.cartItems = action.payload;
+      })
+      .addCase(increaseQty.fulfilled, (state, action) => {
+        state.cartItems = action.payload;
+      })
+      .addCase(decreasedQty.fulfilled, (state, action) => {
+        state.cartItems = action.payload;
+      })
+      .addCase(clearCart.fulfilled, (state) => {
+        state.cartItems = [];
+      });
   },
 });
 
-export const {
-  addToCart,
-  removeFromCart,
-  clearCart,
-  increaseQty,
-  decreasedQty,
-  setProductQty,
-  resetProductQty,
-} = cartSlice.actions;
-
+export const { setProductQty, resetProductQty, resetCartState } =
+  cartSlice.actions;
 export default cartSlice.reducer;

@@ -136,22 +136,32 @@ const Dashboard = () => {
           <div className="flex gap-4 overflow-x-auto pb-2">
             {filteredProducts.map((product) => {
               const isWishlisted = wishlistItems.some(
-                (item) => item.id === product.id,
+                (item) => item.productId === product.id,
               );
-
               return (
                 <div
                   key={product.id}
                   className="relative min-w-45 bg-white border border-zinc-200 rounded-xl overflow-hidden hover:shadow-sm transition"
                 >
                   <button
-                    onClick={() => {
-                      if (isWishlisted) {
-                        dispatch(removeFromWishlist(product.id));
-                        toast.info("Removed from wishlist");
-                      } else {
-                        dispatch(addToWishlist(product));
-                        toast.success("Added to wishlist");
+                    onClick={async () => {
+                      if (!user) {
+                        toast.error("Please log in to use your wishlist");
+                        return navigate("/login");
+                      }
+
+                      try {
+                        if (isWishlisted) {
+                          await dispatch(
+                            removeFromWishlist(product.id),
+                          ).unwrap();
+                          toast.info("Removed from wishlist");
+                        } else {
+                          await dispatch(addToWishlist(product)).unwrap();
+                          toast.success("Added to wishlist");
+                        }
+                      } catch {
+                        toast.error("Something went wrong, please try again");
                       }
                     }}
                     className="absolute top-3 right-3 outline-none cursor-pointer z-10 bg-white/90 p-2 rounded-full shadow text-red-500 hover:scale-110 transition"
@@ -234,7 +244,7 @@ const Dashboard = () => {
               .slice(0, 4)
               .map((product) => {
                 const isWishlisted = wishlistItems.some(
-                  (item) => item.id === product.id,
+                  (item) => item.productId === product.id,
                 );
 
                 return (
@@ -243,13 +253,24 @@ const Dashboard = () => {
                     className="relative bg-white border border-zinc-200 rounded-xl overflow-hidden hover:shadow-md transition"
                   >
                     <button
-                      onClick={() => {
-                        if (isWishlisted) {
-                          dispatch(removeFromWishlist(product.id));
-                          toast.info("Removed from wishlist");
-                        } else {
-                          dispatch(addToWishlist(product));
-                          toast.success("Added to wishlist");
+                      onClick={async () => {
+                        if (!user) {
+                          toast.error("Please log in to use your wishlist");
+                          return navigate("/login");
+                        }
+
+                        try {
+                          if (isWishlisted) {
+                            await dispatch(
+                              removeFromWishlist(product.id),
+                            ).unwrap();
+                            toast.info("Removed from wishlist");
+                          } else {
+                            await dispatch(addToWishlist(product)).unwrap();
+                            toast.success("Added to wishlist");
+                          }
+                        } catch {
+                          toast.error("Something went wrong, please try again");
                         }
                       }}
                       className="absolute top-3 right-3 outline-none cursor-pointer z-10 bg-white/90 p-2 rounded-full shadow text-red-500 hover:scale-110 transition"

@@ -14,7 +14,7 @@ const Checkout = () => {
   const dispatch = useDispatch();
 
   const { cartItems = [] } = useSelector((state) => state.cart || {});
-
+  const { user } = useSelector((state) => state.auth);
   const [form, setForm] = useState({
     fullName: "",
     email: "",
@@ -49,7 +49,6 @@ const Checkout = () => {
       const res = await fetch(
         `${apiUrl}/api/payments/verify/${reference.reference}`,
       );
-
       const data = await res.json();
 
       const isSuccess =
@@ -63,23 +62,26 @@ const Checkout = () => {
         });
       }
 
+      const orderData = {
+        orderId: reference.reference,
+        items: cartItems,
+        userInfo: form,
+        pricing: { subtotal, shipping, total },
+        status: "paid",
+      };
+
       await fetch(`${apiUrl}/api/orders`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${user.token}`,
         },
-        body: JSON.stringify({
-          orderId: reference.reference,
-          items: cartItems,
-          userInfo: form,
-          pricing: { subtotal, shipping, total },
-          status: "paid",
-        }),
+        body: JSON.stringify(orderData),
       });
 
       dispatch(clearCart());
       toast.success("Order saved successfully!");
-      navigate("/order-success");
+      navigate("/order-success", { state: { order: orderData } });
     } catch {
       toast.error("Payment verification failed", {
         description: "Please try again or choose another payment method",
@@ -87,6 +89,7 @@ const Checkout = () => {
     }
   };
   const handlePaystackCheckout = () => {
+    if (!user) return navigate("/login");
     if (!form.email) {
       return toast.error("Enter email first");
     }
@@ -113,7 +116,7 @@ const Checkout = () => {
 
   const handlePlaceOrder = async () => {
     if (loading) return;
-
+    if (!user) return navigate("/login");
     if (!cartItems.length) {
       return toast.error("Cart is empty");
     }
@@ -144,6 +147,7 @@ const Checkout = () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${user.token}`,
         },
         body: JSON.stringify(order),
       });

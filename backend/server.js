@@ -30,6 +30,7 @@ app.use("/api/goals", require("./routes/goalRoutes"));
 app.use("/api/users", require("./routes/userRoutes"));
 app.use("/api/payments", paymentRoutes);
 app.use("/api/orders", orderRoutes);
-
+app.use("/api/wishlist", require("./routes/wishlistRoutes"));
+app.use("/api/cart", require("./routes/cartRoutes"));
 app.use(errorHandler);
 app.listen(port, () => console.log(`Server started on port ${port}`));

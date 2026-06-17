@@ -7,8 +7,14 @@ import {
   removeFromCart,
   clearCart,
   increaseQty,
+  fetchCart,
+  resetCartState,
   decreasedQty,
 } from "../features/cart/cartSlice";
+import {
+  fetchWishlist,
+  clearWishlist,
+} from "../features/wishlist/wishlistSlice";
 import {
   FaSignInAlt,
   FaUser,
@@ -57,6 +63,12 @@ function Nav() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [cartOpen]);
 
+  useEffect(() => {
+    if (user) {
+      dispatch(fetchCart());
+      dispatch(fetchWishlist());
+    }
+  }, [user, dispatch]);
   const navLinks = [
     { name: "About", path: "/about" },
     { name: "Orders", path: "/orders" },
@@ -72,6 +84,8 @@ function Nav() {
   const handleLogout = () => {
     authService.logout();
     dispatch(logout());
+    dispatch(resetCartState());
+    dispatch(clearWishlist());
     setShowLogoutModal(false);
     navigate("/login");
   };

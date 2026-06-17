@@ -1,4 +1,6 @@
 import { useState, useEffect, useRef } from "react";
+import { useSelector } from "react-redux";
+import { useNavigate } from "react-router";
 import { ClipLoader } from "react-spinners";
 import { FaTimes, FaBoxOpen } from "react-icons/fa";
 import { toast } from "sonner";
@@ -10,10 +12,20 @@ const Orders = () => {
   const [loading, setLoading] = useState(true);
 
   const hasShownError = useRef(false);
+
+  const navigate = useNavigate();
+  const { user } = useSelector((state) => state.auth);
   useEffect(() => {
+    if (!user) {
+      navigate("/login");
+      return;
+    }
+
     const fetchOrders = async () => {
       try {
-        const res = await fetch(`${apiUrl}/api/orders`);
+        const res = await fetch(`${apiUrl}/api/orders`, {
+          headers: { Authorization: `Bearer ${user.token}` },
+        });
 
         if (!res.ok) {
           throw new Error("Failed to fetch orders");
@@ -37,7 +49,7 @@ const Orders = () => {
     };
 
     fetchOrders();
-  }, []);
+  }, [user, navigate]);
 
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [search, setSearch] = useState("");
@@ -84,7 +96,7 @@ const Orders = () => {
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
-          className="w-full md:w-1/4 border border-zinc-200 rounded-lg outline-none px-4 py-2"
+          className="w-full md:w-1/4 border outline-none focus:border-orange-500 border-zinc-200 rounded-lg px-4 py-2"
         >
           <option value="all">All</option>
           <option value="pending">Pending</option>

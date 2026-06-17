@@ -1,13 +1,25 @@
 import React from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { FaTrash, FaStar, FaHeart } from "react-icons/fa";
-import { removeFromWishlist } from "../features/wishlist/wishlistSlice";
+import {
+  removeFromWishlist,
+  fetchWishlist,
+} from "../features/wishlist/wishlistSlice";
 
 const Wishlist = () => {
   const dispatch = useDispatch();
-  const { wishlistItems } = useSelector((state) => state.wishlist);
+  const navigate = useNavigate();
+  const { user } = useSelector((state) => state.auth);
+  const { wishlistItems = [] } = useSelector((state) => state.wishlist || {});
 
+  useEffect(() => {
+    if (!user) {
+      navigate("/login");
+      return;
+    }
+    dispatch(fetchWishlist());
+  }, [user, navigate, dispatch]);
   if (wishlistItems.length === 0) {
     return (
       <div className="min-h-screen flex items-center justify-center px-4">
