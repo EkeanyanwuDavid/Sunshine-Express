@@ -90,9 +90,14 @@ const Checkout = () => {
   };
   const handlePaystackCheckout = () => {
     if (!user) return navigate("/login");
-    if (!form.email) {
-      return toast.error("Enter email first");
-    }
+
+  const emailRegex = /\S+@\S+\.\S+/;
+
+  if (!form.fullName.trim()) return toast.error("Full name is required");
+  if (!emailRegex.test(form.email)) return toast.error("Invalid email");
+  if (!form.phone || form.phone.length < 10) return toast.error("Invalid phone");
+  if (!form.state) return toast.error("Select a state");
+  if (!form.address || form.address.length < 10) return toast.error("Address too short");
 
     const handler = window.PaystackPop.setup({
       key: publicKey,
