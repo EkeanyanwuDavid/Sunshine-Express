@@ -234,7 +234,7 @@ function Login() {
             {/* SUBMIT */}
             <button
               type="submit"
-              className="w-full py-3 bg-orange-600 hover:bg-orange-700 text-white text-sm font-semibold rounded-lg transition-all duration-150 mt-2"
+              className="w-full py-3 bg-orange-600 outline-none hover:bg-orange-700 text-white cursor-pointer text-sm font-semibold rounded-lg transition-all duration-150 mt-2"
             >
               Log In
             </button>

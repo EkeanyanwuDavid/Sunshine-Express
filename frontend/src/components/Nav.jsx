@@ -245,7 +245,7 @@ function Nav() {
                     setMenuOpen(false);
                     setShowLogoutModal(true);
                   }}
-                  className="flex items-center justify-center cursor-pointer gap-2 px-4 py-2.5 text-sm font-medium text-white bg-orange-600 rounded-md hover:bg-orange-700 transition-all duration-150"
+                  className="flex items-center justify-center cursor-pointer gap-2 px-4 py-2.5 text-sm outline-none font-medium text-white bg-orange-600 rounded-md hover:bg-orange-700 transition-all duration-150"
                 >
                   <FaSignOutAlt className="text-[14px]" /> Logout
                 </button>

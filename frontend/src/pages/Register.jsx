@@ -298,7 +298,7 @@ function Register() {
             <button
               type="submit"
               disabled={isLoading}
-              className={`w-full py-3 text-white text-sm font-semibold rounded-lg transition-all duration-150 mt-2 ${isLoading ? "bg-orange-300 cursor-not-allowed" : "bg-orange-600 hover:bg-orange-700"}`}
+              className={`w-full py-3 text-white cursor-pointer outline-none text-sm font-semibold rounded-lg transition-all duration-150 mt-2 ${isLoading ? "bg-orange-300 cursor-not-allowed" : "bg-orange-600 hover:bg-orange-700"}`}
             >
               {isLoading ? "Creating account..." : "Create Account"}
             </button>
