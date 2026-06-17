@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import {
   FaCheckCircle,
   FaBoxOpen,
@@ -16,23 +16,17 @@ const generateOrderId = () => {
 
 const OrderSuccess = () => {
   const navigate = useNavigate();
-  const [orderId] = useState(() => generateOrderId());
-
-  const orders = JSON.parse(localStorage.getItem("orders") || "[]");
-  const order = orders[orders.length - 1];
-
+  const { state } = useLocation();
+  const order = state?.order;
+  const orderId = order?.orderId || generateOrderId();
   useEffect(() => {
-    if (!order) {
-      navigate("/");
-    }
+    if (!order) navigate("/");
   }, [order, navigate]);
-
   if (!order) return null;
 
   return (
     <div className="min-h-screen bg-zinc-50 flex items-center justify-center px-4">
       <div className="bg-white border border-zinc-200 rounded-2xl p-8 text-center max-w-md w-full shadow-sm">
-        {/* SUCCESS ICON */}
         <FaCheckCircle className="text-5xl text-green-500 mx-auto mb-3" />
 
         <h1 className="text-2xl font-bold text-zinc-900">Order Confirmed</h1>

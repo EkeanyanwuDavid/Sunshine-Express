@@ -61,7 +61,7 @@ const Orders = () => {
   }
 
   const filteredOrders = orders.filter((order) => {
-    const matchesSearch = order.orderId
+    const matchesSearch = (order.orderId || "")
       .toLowerCase()
       .includes(search.toLowerCase());
 

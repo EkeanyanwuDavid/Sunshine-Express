@@ -140,7 +140,7 @@ const Checkout = () => {
         createdAt: new Date().toISOString(),
       };
 
-      await fetch(`${apiUrl}/api/orders`, {
+      const res = await fetch(`${apiUrl}/api/orders`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -148,10 +148,14 @@ const Checkout = () => {
         body: JSON.stringify(order),
       });
 
+      const savedOrder = await res.json();
+
+      navigate("/order-success", {
+        state: { order: savedOrder },
+      });
+
       dispatch(clearCart());
       toast.success("Order placed successfully");
-
-      navigate("/order-success");
     } catch {
       toast.error("Something went wrong");
     } finally {
