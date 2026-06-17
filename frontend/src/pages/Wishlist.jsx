@@ -1,4 +1,4 @@
-import React from "react";
+import { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import { FaTrash, FaStar, FaHeart } from "react-icons/fa";
@@ -61,7 +61,7 @@ const Wishlist = () => {
               key={product.id}
               className="bg-white border border-zinc-200 rounded-xl overflow-hidden hover:shadow-md transition group"
             >
-              <Link to={`/product/${product.id}`}>
+              <Link to={`/product/${product.productId}`}>
                 <div className="overflow-hidden">
                   <img
                     src={product.image}
@@ -88,7 +88,9 @@ const Wishlist = () => {
 
               <div className="px-3 pb-3">
                 <button
-                  onClick={() => dispatch(removeFromWishlist(product.id))}
+                  onClick={() =>
+                    dispatch(removeFromWishlist(product.productId))
+                  }
                   className="w-full flex items-center justify-center gap-2 py-2 cursor-pointer outline-none text-xs text-red-600 border border-red-200 rounded-lg hover:bg-red-50 transition"
                 >
                   <FaTrash />
