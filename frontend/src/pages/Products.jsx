@@ -41,7 +41,7 @@ const Products = () => {
   const product = products.find((item) => String(item.id) === productId);
 
   const isWishlisted = wishlistItems.some(
-    (item) => item.productId === product?.id,
+    (item) => item.productId === String(product?.id),
   );
   const savedQty = productQty?.[productId];
 
@@ -151,7 +151,7 @@ const Products = () => {
               <button
                 onClick={() => {
                   if (isWishlisted) {
-                    dispatch(removeFromWishlist(product.id));
+                    dispatch(removeFromWishlist(String(product.id)));
                     toast.info("Removed from wishlist");
                   } else {
                     dispatch(addToWishlist(product));
@@ -297,7 +297,7 @@ const Products = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {relatedProducts.map((p) => {
               const isWishlisted = wishlistItems.some(
-                (item) => item.productId === p.id,
+                (item) => item.productId === String(p.id),
               );
 
               return (
@@ -305,7 +305,7 @@ const Products = () => {
                   <button
                     onClick={() => {
                       if (isWishlisted) {
-                        dispatch(removeFromWishlist(p.id));
+                        dispatch(removeFromWishlist(String(p.id)));
                         toast.info("Removed from wishlist");
                       } else {
                         dispatch(addToWishlist(p));

@@ -53,10 +53,10 @@ function App() {
             description: "text-zinc-500 text-sm mt-1",
             closeButton:
               "bg-zinc-100 border-0 text-zinc-500 hover:bg-orange-100 hover:text-orange-600",
-            success: "border-1-4 border-1-orange-600",
-            error: "border-1-4 border-1-red-500",
-            warning: "border-1-4 border-1-yellow-500",
-            info: "border-1-4 border-1-orange-500",
+            success: "!border-l-4 !border-l-green-500",
+            error: "!border-l-4 !border-l-red-500",
+            warning: "!border-l-4 !border-l-yellow-500",
+            info: "!border-l-4 !border-l-orange-500",
           },
         }}
       />

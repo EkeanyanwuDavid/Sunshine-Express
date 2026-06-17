@@ -136,7 +136,7 @@ const Dashboard = () => {
           <div className="flex gap-4 overflow-x-auto pb-2">
             {filteredProducts.map((product) => {
               const isWishlisted = wishlistItems.some(
-                (item) => item.productId === product.id,
+                (item) => item.productId === String(product.id),
               );
               return (
                 <div
@@ -153,7 +153,7 @@ const Dashboard = () => {
                       try {
                         if (isWishlisted) {
                           await dispatch(
-                            removeFromWishlist(product.id),
+                            removeFromWishlist(String(product.id)),
                           ).unwrap();
                           toast.info("Removed from wishlist");
                         } else {
@@ -244,7 +244,7 @@ const Dashboard = () => {
               .slice(0, 4)
               .map((product) => {
                 const isWishlisted = wishlistItems.some(
-                  (item) => item.productId === product?.id,
+                  (item) => item.productId === String(product?.id),
                 );
 
                 return (
@@ -262,7 +262,7 @@ const Dashboard = () => {
                         try {
                           if (isWishlisted) {
                             await dispatch(
-                              removeFromWishlist(product.id),
+                              removeFromWishlist(String(product.id)),
                             ).unwrap();
                             toast.info("Removed from wishlist");
                           } else {
