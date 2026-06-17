@@ -1,18 +1,6 @@
 import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Toaster, toast } from "sonner";
-import {
-  removeFromCart,
-  clearCart,
-  increaseQty,
-  decreasedQty,
-  fetchCart,
-  resetCartState,
-} from "../features/cart/cartSlice";
-import {
-  fetchWishlist,
-  clearWishlist,
-} from "../features/wishlist/wishlistSlice";
 import Navbar from "./components/Nav";
 import Dashboard from "./pages/Dashboard";
 import Login from "./pages/Login";
