@@ -1,6 +1,6 @@
 import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { Toaster, toast } from "sonner";
+import { Toaster } from "sonner";
 import Navbar from "./components/Nav";
 import Dashboard from "./pages/Dashboard";
 import Login from "./pages/Login";
@@ -45,7 +45,6 @@ function App() {
         closeButton
         expand={false}
         duration={4000}
-        expand
         toastOptions={{
           classNames: {
             toast:

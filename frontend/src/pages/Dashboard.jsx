@@ -244,7 +244,7 @@ const Dashboard = () => {
               .slice(0, 4)
               .map((product) => {
                 const isWishlisted = wishlistItems.some(
-                  (item) => item.productId === product.id,
+                  (item) => item.productId === product?.id,
                 );
 
                 return (

@@ -40,7 +40,9 @@ const Products = () => {
 
   const product = products.find((item) => String(item.id) === productId);
 
-  const isWishlisted = wishlistItems.some((item) => item.id === product?.id);
+  const isWishlisted = wishlistItems.some(
+    (item) => item.productId === product?.id,
+  );
   const savedQty = productQty?.[productId];
 
   useEffect(() => {
@@ -295,7 +297,7 @@ const Products = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {relatedProducts.map((p) => {
               const isWishlisted = wishlistItems.some(
-                (item) => item.id === p.id,
+                (item) => item.productId === p.id,
               );
 
               return (
