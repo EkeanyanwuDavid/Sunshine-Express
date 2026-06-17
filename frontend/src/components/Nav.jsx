@@ -63,12 +63,11 @@ function Nav() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [cartOpen]);
 
-  useEffect(() => {
-    if (user) {
-      dispatch(fetchCart());
-      dispatch(fetchWishlist());
-    }
-  }, [user, dispatch]);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { user } = useSelector((state) => state.auth);
+  const { cartItems } = useSelector((state) => state.cart);
+
   const navLinks = [
     { name: "About", path: "/about" },
     { name: "Orders", path: "/orders" },
@@ -76,10 +75,12 @@ function Nav() {
     { name: "Contact", path: "/contact" },
   ];
 
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
-  const { user } = useSelector((state) => state.auth);
-  const { cartItems } = useSelector((state) => state.cart);
+  useEffect(() => {
+    if (user) {
+      dispatch(fetchCart());
+      dispatch(fetchWishlist());
+    }
+  }, [user, dispatch]);
 
   const handleLogout = () => {
     authService.logout();
