@@ -27,31 +27,43 @@ import { Link } from "react-router-dom";
 function Nav() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
-  const cartRef = useRef(null);
+  const cartPanelRef = useRef(null);
+  const desktopCartBtnRef = useRef(null);
+  const mobileCartBtnRef = useRef(null);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  // Close cart when clicking outside — ignore clicks on either cart button
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (cartRef.current && !cartRef.current.contains(event.target)) {
+      const clickedPanel = cartPanelRef.current?.contains(event.target);
+      const clickedDesktopBtn = desktopCartBtnRef.current?.contains(
+        event.target,
+      );
+      const clickedMobileBtn = mobileCartBtnRef.current?.contains(event.target);
+      if (!clickedPanel && !clickedDesktopBtn && !clickedMobileBtn) {
         setCartOpen(false);
       }
     };
-
     if (cartOpen) {
       document.addEventListener("mousedown", handleClickOutside);
     }
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [cartOpen]);
-  const navLinks = ["Features", "Pricing", "About", "Contact"];
+
+  const navLinks = [
+    { name: "About", path: "/about" },
+    { name: "Orders", path: "/orders" },
+    { name: "Wishlist", path: "/wishlist" },
+    { name: "Contact", path: "/contact" },
+  ];
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { user } = useSelector((state) => state.auth);
@@ -63,32 +75,47 @@ function Nav() {
     setShowLogoutModal(false);
     navigate("/login");
   };
+
+  const cartTotal = cartItems.reduce((total, item) => {
+    return total + (Number(item.price) || 0) * (item.qty || 1);
+  }, 0);
+
   return (
     <>
       <header
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${scrolled ? "bg-white/95 backdrop-blur-md shadow-sm " : "bg-white"}`}
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
+          scrolled ? "bg-white/95 backdrop-blur-md shadow-sm" : "bg-white"
+        }`}
       >
         <nav className="max-w-6xl mx-auto px-5 sm:px-8 h-16 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2 select-none">
+          {/* Logo */}
+          <Link
+            to="/"
+            className="flex items-center gap-2 select-none outline-none"
+          >
             <span className="font-bold text-xl flex items-center gap-1.5 tracking-tight">
               <FaSun className="text-2xl text-orange-500 drop-shadow-[0_0_6px_rgba(251,146,60,0.8)]" />
               <span className="text-amber-600">Sunshine</span>
-
               <span className="text-zinc-800">Express</span>
             </span>
           </Link>
 
+          {/* Desktop nav links */}
           <ul className="hidden md:flex items-center gap-1">
             {navLinks.map((link) => (
-              <li key={link}>
-                <Link className="px-3.5 py-2 font-body text-sm text-zinc-500 hover:text-zinc-900 rounded-md hover:bg-zinc-50 transition-all duration-150 font-medium">
-                  {link}
+              <li key={link.name}>
+                <Link
+                  to={link.path}
+                  className="px-3.5 py-2 text-sm text-zinc-500 outline-none hover:text-zinc-900 rounded-md hover:bg-zinc-50 transition-all duration-150 font-medium"
+                >
+                  {link.name}
                 </Link>
               </li>
             ))}
           </ul>
 
-          <div className=" hidden md:flex items-center gap-2">
+          {/* Desktop right side */}
+          <div className="hidden md:flex items-center gap-2">
             {!user ? (
               <>
                 <Link
@@ -106,142 +133,19 @@ function Nav() {
               </>
             ) : (
               <>
-                <div className="relative">
-                  <button
-                    onClick={() => setCartOpen(!cartOpen)}
-                    className="relative flex items-center justify-center w-10 h-10 text-orange-600 hover:text-orange-700 hover:bg-orange-50 rounded-full transition-all duration-150"
-                  >
-                    <FaShoppingCart className="text-lg" />
-                    {cartItems.length > 0 && (
-                      <span className="absolute -top-1 -right-1 bg-orange-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
-                        {cartItems.length}
-                      </span>
-                    )}
-                  </button>
-
-                  {cartOpen && (
-                    <div
-                      ref={cartRef}
-                      className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-zinc-200 z-40"
-                    >
-                      <div className="p-4 border-b border-zinc-100 flex justify-between items-center">
-                        <h3 className="text-sm font-bold text-zinc-800">
-                          Shopping Cart
-                        </h3>
-                        <button
-                          onClick={() => setCartOpen(false)}
-                          className="text-zinc-500 hover:text-zinc-700"
-                        >
-                          <FaTimes />
-                        </button>
-                      </div>
-
-                      <div className="max-h-96 overflow-y-auto">
-                        {cartItems.length === 0 ? (
-                          <div className="p-4 text-center text-zinc-500 text-sm">
-                            Your cart is empty
-                          </div>
-                        ) : (
-                          cartItems.map((item) => (
-                            <div
-                              key={item.id}
-                              className="p-4 border-b border-zinc-100 flex justify-between items-start gap-3"
-                            >
-                              <img
-                                src={item.image}
-                                alt={item.name}
-                                className="w-16 h-16 object-cover rounded"
-                              />
-                              <div className="flex-1">
-                                <p className="text-sm font-medium text-zinc-800">
-                                  {item.name}
-                                </p>
-                                <div className="flex items-center gap-2 mt-2">
-                                  <button
-                                    onClick={() =>
-                                      dispatch(decreasedQty(item.id))
-                                    }
-                                    className="p-1 text-xs bg-zinc-200 text-zinc-700 rounded hover:bg-zinc-300 transition"
-                                  >
-                                    <FaMinus />
-                                  </button>
-                                  <span className="text-xs font-semibold text-zinc-700 w-6 text-center">
-                                    {item.qty}
-                                  </span>
-                                  <button
-                                    onClick={() =>
-                                      dispatch(increaseQty(item.id))
-                                    }
-                                    className="p-1 text-xs bg-orange-600 text-white rounded hover:bg-orange-700 transition"
-                                  >
-                                    <FaPlus />
-                                  </button>
-                                </div>
-                                <p className="text-sm font-bold text-orange-600 mt-2">
-                                  ₦{(item.price || 0).toLocaleString()}
-                                </p>
-                              </div>
-                              <button
-                                onClick={() =>
-                                  dispatch(removeFromCart(item.id))
-                                }
-                                className="text-red-500 hover:text-red-700"
-                              >
-                                <FaTrash className="text-xs" />
-                              </button>
-                            </div>
-                          ))
-                        )}
-                      </div>
-
-                      {cartItems.length > 0 && (
-                        <div className="p-4 border-t border-zinc-100">
-                          <div className="flex justify-between items-center mb-4 pb-3 border-b border-zinc-100">
-                            <span className="text-sm font-medium text-zinc-600">
-                              Total:
-                            </span>
-
-                            <span className="text-lg font-bold text-orange-600">
-                              ₦
-                              {cartItems
-                                .reduce((total, item) => {
-                                  const price = Number(item.price) || 0;
-                                  const qty = item.qty || 1;
-
-                                  return total + price * qty;
-                                }, 0)
-                                .toLocaleString()}
-                            </span>
-                          </div>
-
-                          <div className="flex gap-2">
-                            <button
-                              onClick={() => {
-                                dispatch(clearCart());
-                                setCartOpen(false);
-                              }}
-                              className="flex-1 px-3 py-2 text-xs bg-zinc-200 text-zinc-700 rounded hover:bg-zinc-300 transition"
-                            >
-                              Clear Cart
-                            </button>
-
-                            <button
-                              disabled={!cartItems.length}
-                              onClick={() => navigate("/checkout")}
-                              className={`px-3 py-2 text-xs rounded flex-1 text-white transition ${
-                                cartItems.length
-                                  ? "bg-orange-600 hover:bg-orange-700"
-                                  : "bg-zinc-300 cursor-not-allowed"
-                              }`}
-                            >
-                              Checkout
-                            </button>
-                          </div>
-                        </div>
-                      )}
-                    </div>
+                {/* Desktop cart button */}
+                <button
+                  ref={desktopCartBtnRef}
+                  onClick={() => setCartOpen(!cartOpen)}
+                  className="relative flex items-center justify-center w-10 outline-none h-10 text-orange-600 hover:text-orange-700 hover:bg-orange-50 rounded-full transition-all duration-150"
+                >
+                  <FaShoppingCart className="text-lg" />
+                  {cartItems.length > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-orange-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                      {cartItems.length}
+                    </span>
                   )}
-                </div>
+                </button>
 
                 <button
                   onClick={() => setShowLogoutModal(true)}
@@ -253,33 +157,51 @@ function Nav() {
             )}
           </div>
 
-          {/* Burger Menu */}
-
-          <button
-            onClick={() => setMenuOpen(!menuOpen)}
-            className="md:hidden justify-center text-zinc-700 hover:bg-zinc-100 rounded-md transition-all duration-150"
-          >
-            {menuOpen ? (
-              <FaTimes className="text-lg" />
-            ) : (
-              <FaBars className="text-lg" />
+          {/* Mobile right side — cart icon + burger */}
+          <div className="md:hidden flex items-center gap-2">
+            {user && (
+              <button
+                ref={mobileCartBtnRef}
+                onClick={() => setCartOpen(!cartOpen)}
+                className="relative flex items-center justify-center w-10 h-10 text-orange-600"
+              >
+                <FaShoppingCart className="text-lg" />
+                {cartItems.length > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-orange-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                    {cartItems.length}
+                  </span>
+                )}
+              </button>
             )}
-          </button>
+            <button
+              onClick={() => setMenuOpen(!menuOpen)}
+              className="flex items-center justify-center w-10 h-10 text-zinc-700 hover:bg-zinc-100 rounded-md transition-all duration-150"
+            >
+              {menuOpen ? (
+                <FaTimes className="text-lg" />
+              ) : (
+                <FaBars className="text-lg" />
+              )}
+            </button>
+          </div>
         </nav>
 
-        {/* mobile menu */}
+        {/* Mobile menu */}
         <div
-          className={`md:hidden overflow-hidden transition-all duration-300 ease-in-out ${menuOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"}`}
+          className={`md:hidden overflow-hidden transition-all duration-300 ease-in-out ${
+            menuOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
+          }`}
         >
           <div className="px-5 pb-5 pt-1 border-t border-zinc-100 bg-white">
             <ul className="flex flex-col gap-0.5 mb-4">
               {navLinks.map((link) => (
-                <li key={link}>
+                <li key={link.name}>
                   <Link
-                    className="block px-3 py-2.5 text-sm text-zinc-600 hover:text-zinc-900 hover:bg-zinc-50 rounded-md transition-all duration-150 font-medium"
+                    to={link.path}
+                    className="block px-3 py-2.5 text-sm text-zinc-600 hover:text-zinc-900 hover:bg-zinc-50 rounded-md transition-all duration-150 font-medium outline-none"
                     onClick={() => setMenuOpen(false)}
                   >
-                    {link}
+                    {link.name}
                   </Link>
                 </li>
               ))}
@@ -289,15 +211,14 @@ function Nav() {
                 <>
                   <Link
                     to="/login"
-                    className="flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-zinc-700 border border-zinc-200 transition-all duration-150"
+                    className="flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-zinc-700 border border-zinc-200 rounded-md transition-all duration-150"
                     onClick={() => setMenuOpen(false)}
                   >
                     <FaSignInAlt className="text-[13px]" /> Log in
                   </Link>
-
                   <Link
                     to="/register"
-                    className="flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-white bg-orange-600 rounded-md hover:bg-zinc-700 transition-all duration-150"
+                    className="flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-white bg-orange-600 rounded-md hover:bg-orange-700 transition-all duration-150"
                     onClick={() => setMenuOpen(false)}
                   >
                     <FaUser className="text-[13px]" /> Sign up
@@ -309,7 +230,7 @@ function Nav() {
                     setMenuOpen(false);
                     setShowLogoutModal(true);
                   }}
-                  className="flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-white bg-orange-600 rounded-md hover:bg-orange-700 transition-all duration-150"
+                  className="flex items-center justify-center cursor-pointer gap-2 px-4 py-2.5 text-sm font-medium text-white bg-orange-600 rounded-md hover:bg-orange-700 transition-all duration-150"
                 >
                   <FaSignOutAlt className="text-[14px]" /> Logout
                 </button>
@@ -317,9 +238,129 @@ function Nav() {
             </div>
           </div>
         </div>
+
+        {cartOpen && user && (
+          <>
+            {/* Mobile backdrop */}
+            <div
+              className="fixed inset-0 bg-black/40 z-30 md:hidden"
+              onClick={() => setCartOpen(false)}
+            />
+
+            <div
+              ref={cartPanelRef}
+              className="fixed bottom-0 left-0 right-0 z-40 bg-white rounded-t-2xl shadow-2xl border-t border-zinc-200
+  md:fixed md:bottom-auto md:left-auto md:right-8 md:top-17 md:w-80 md:rounded-lg md:border md:shadow-lg"
+            >
+              <div className="md:hidden flex justify-center pt-3 pb-1">
+                <div className="w-10 h-1 bg-zinc-300 rounded-full" />
+              </div>
+
+              {/* Header */}
+              <div className="p-4 border-b border-zinc-100 flex justify-between items-center">
+                <h3 className="text-sm font-bold text-zinc-800">
+                  Shopping Cart
+                </h3>
+                <button
+                  onClick={() => setCartOpen(false)}
+                  className="text-zinc-500 hover:text-zinc-700 outline-none"
+                >
+                  <FaTimes />
+                </button>
+              </div>
+
+              {/* Items */}
+              <div className="max-h-72 overflow-y-auto">
+                {cartItems.length === 0 ? (
+                  <div className="p-6 text-center text-zinc-500 text-sm">
+                    Your cart is empty
+                  </div>
+                ) : (
+                  cartItems.map((item) => (
+                    <div
+                      key={item.id}
+                      className="p-4 border-b border-zinc-100 flex justify-between items-start gap-3"
+                    >
+                      <img
+                        src={item.image}
+                        alt={item.name}
+                        className="w-16 h-16 object-cover rounded"
+                      />
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-zinc-800">
+                          {item.name}
+                        </p>
+                        <div className="flex items-center gap-2 mt-2">
+                          <button
+                            onClick={() => dispatch(decreasedQty(item.id))}
+                            className="p-1 text-xs bg-zinc-200 text-zinc-700 rounded hover:bg-zinc-300 transition"
+                          >
+                            <FaMinus />
+                          </button>
+                          <span className="text-xs font-semibold text-zinc-700 w-6 text-center">
+                            {item.qty}
+                          </span>
+                          <button
+                            onClick={() => dispatch(increaseQty(item.id))}
+                            className="p-1 text-xs bg-orange-600 text-white rounded hover:bg-orange-700 transition"
+                          >
+                            <FaPlus />
+                          </button>
+                        </div>
+                        <p className="text-sm font-bold text-orange-600 mt-2">
+                          ₦{(item.price || 0).toLocaleString()}
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => dispatch(removeFromCart(item.id))}
+                        className="text-red-500 hover:text-red-700"
+                      >
+                        <FaTrash className="text-xs" />
+                      </button>
+                    </div>
+                  ))
+                )}
+              </div>
+
+              {/* Footer */}
+              {cartItems.length > 0 && (
+                <div className="p-4 border-t border-zinc-100">
+                  <div className="flex justify-between items-center mb-4 pb-3 border-b border-zinc-100">
+                    <span className="text-sm font-medium text-zinc-600">
+                      Total:
+                    </span>
+                    <span className="text-lg font-bold text-orange-600">
+                      ₦{cartTotal.toLocaleString()}
+                    </span>
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => {
+                        dispatch(clearCart());
+                        setCartOpen(false);
+                      }}
+                      className="flex-1 px-3 py-2 text-xs bg-zinc-200 text-zinc-700 rounded hover:bg-zinc-300 transition"
+                    >
+                      Clear Cart
+                    </button>
+                    <button
+                      onClick={() => {
+                        setCartOpen(false);
+                        navigate("/checkout");
+                      }}
+                      className="flex-1 px-3 py-2 text-xs bg-orange-600 text-white rounded hover:bg-orange-700 transition"
+                    >
+                      Checkout
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </>
+        )}
       </header>
 
-      {/* Logout Confirmation Modal */}
+      {/* Logout modal */}
       {showLogoutModal && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl shadow-xl max-w-sm w-full p-6 border border-zinc-200">
@@ -331,12 +372,10 @@ function Nav() {
                 Confirm Logout
               </h2>
             </div>
-
             <p className="text-zinc-600 text-sm mb-6">
               Are you sure you want to logout? You'll need to sign in again to
               continue shopping.
             </p>
-
             <div className="flex gap-3">
               <button
                 onClick={() => setShowLogoutModal(false)}
@@ -359,4 +398,5 @@ function Nav() {
     </>
   );
 }
+
 export default Nav;

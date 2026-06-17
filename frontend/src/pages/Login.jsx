@@ -9,7 +9,7 @@ import {
   FaCheckCircle,
 } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import { useDispatch, useSelector } from "react-redux";
 import { login, reset } from "../features/auth/authSlice";
 import Spinner from "../components/Spinner";

@@ -16,14 +16,17 @@ const cartSlice = createSlice({
     addToCart: (state, action) => {
       const item = action.payload;
 
-      const qtyToAdd = item.qty || 1;
+      const qtyToAdd = item.qty ? Number(item.qty) : 1;
 
       const existingItem = state.cartItems.find((x) => x.id === item.id);
 
       if (existingItem) {
-        existingItem.qty += qtyToAdd;
+        existingItem.qty = Number(existingItem.qty || 0) + qtyToAdd;
       } else {
-        state.cartItems.push({ ...item, qty: qtyToAdd });
+        state.cartItems.push({
+          ...item,
+          qty: qtyToAdd,
+        });
       }
 
       localStorage.setItem("cartItems", JSON.stringify(state.cartItems));
@@ -41,19 +44,17 @@ const cartSlice = createSlice({
     increaseQty: (state, action) => {
       const item = state.cartItems.find((x) => x.id === action.payload);
       if (item) {
-        item.qty += 1;
+        item.qty = Number(item.qty || 0) + 1;
       }
       localStorage.setItem("cartItems", JSON.stringify(state.cartItems));
     },
-
     decreasedQty: (state, action) => {
       const item = state.cartItems.find((x) => x.id === action.payload);
       if (item && item.qty > 1) {
-        item.qty -= 1;
+        item.qty = Number(item.qty || 0) - 1;
       }
       localStorage.setItem("cartItems", JSON.stringify(state.cartItems));
     },
-
     clearCart: (state) => {
       state.cartItems = [];
       localStorage.removeItem("cartItems");

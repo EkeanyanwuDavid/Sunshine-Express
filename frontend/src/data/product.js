@@ -6,6 +6,7 @@ import Shoe from "../assets/imani-bahati-LxVxPA1LOVM-unsplash.jpg";
 import Mitzie from "../assets/mitzie-organics-dnstpPqCBbw-unsplash.jpg";
 import Makeup from "../assets/hannah-krueger--5EGXottPIY-unsplash.jpg";
 import FaceCream from "../assets/nataliya-melnychuk-51sGDpm5S78-unsplash.jpg";
+import LadyHeels from "../assets/mohammad-metri-E-0ON3VGrBc-unsplash.jpg";
 
 export const products = [
   {
@@ -62,5 +63,23 @@ export const products = [
     description: "Complete skincare routine in one package.",
     rating: 5.0,
     reviews: 300,
+  },
+  {
+    id: 7,
+    name: "School Bag",
+    price: 10000,
+    image: Bag,
+    description: "Portable and exquisite travel bags for you.",
+    rating: 4.2,
+    reviews: 100,
+  },
+  {
+    id: 8,
+    name: "Lady Heels",
+    price: 40000,
+    image: LadyHeels,
+    description: "Elegant heels for special occasions.",
+    rating: 4.5,
+    reviews: 150,
   },
 ];

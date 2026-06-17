@@ -5,14 +5,39 @@ import {
   FaAppleAlt,
   FaCouch,
   FaFireAlt,
+  FaSearch,
+  FaStar,
+  FaTruck,
+  FaLock,
+  FaHeadset,
+  FaHeart,
+  FaRegHeart,
 } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { products } from "../data/product";
 import Glasses from "../assets/giorgio-trovato-K62u25Jk6vo-unsplash.jpg";
 import Bag from "../assets/jakob-owens-O_bhy3TnSYU-unsplash.jpg";
 import Shoes from "../assets/mohammad-metri-E-0ON3VGrBc-unsplash.jpg";
-
+import { useDispatch, useSelector } from "react-redux";
+import { addToCart } from "../features/cart/cartSlice";
+import {
+  addToWishlist,
+  removeFromWishlist,
+} from "../features/wishlist/wishlistSlice";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
+import FlashTimer from "../components/FlashTimer";
 const Dashboard = () => {
+  const dispatch = useDispatch();
+
+  const { wishlistItems } = useSelector((state) => state.wishlist);
+  const { user } = useSelector((state) => state.auth);
+  const navigate = useNavigate();
+
+  const [search, setSearch] = useState("");
+  const filteredProducts = products.filter((p) =>
+    p.name.toLowerCase().includes(search.toLowerCase()),
+  );
   const slides = [Glasses, Bag, Shoes];
   const [index, setIndex] = useState(0);
 
@@ -54,6 +79,22 @@ const Dashboard = () => {
           </div>
         </div>
       </section>
+      {/* SEARCH BAR */}
+      <section className="px-6 mt-4">
+        <div className="max-w-7xl mx-auto">
+          <div className="relative w-full md:w-1/2">
+            <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 text-sm" />
+
+            <input
+              type="text"
+              placeholder="Search for products..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 border border-zinc-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+            />
+          </div>
+        </div>
+      </section>
 
       {/* CATEGORIES */}
       <section className="px-6 py-10">
@@ -71,7 +112,7 @@ const Dashboard = () => {
             ].map((cat, i) => (
               <div
                 key={i}
-                className="bg-white border border-zinc-200 rounded-xl p-6 text-center hover:shadow-sm transition cursor-pointer"
+                className="bg-white border border-zinc-200 rounded-xl p-6 text-center hover:shadow-sm transition "
               >
                 <div className="text-orange-600 text-2xl flex justify-center">
                   {cat.icon}
@@ -93,33 +134,72 @@ const Dashboard = () => {
             Trending Deals
           </h2>
           <div className="flex gap-4 overflow-x-auto pb-2">
-            {products.map((product) => (
-              <Link
-                key={product.id}
-                to={`/product/${product.id}`}
-                className="min-w-45 bg-white border border-zinc-200 rounded-xl overflow-hidden hover:shadow-sm transition"
-              >
-                <img
-                  src={product.image}
-                  className="w-full object-cover h-32"
-                  alt={product.name}
-                />
+            {filteredProducts.map((product) => {
+              const isWishlisted = wishlistItems.some(
+                (item) => item.id === product.id,
+              );
 
-                <div className="p-3">
-                  <h3 className="text-sm font-medium text-zinc-800">
-                    {product.name}
-                  </h3>
-
-                  <p className="text-orange-600 font-semibold text-sm mt-1">
-                    ₦{product.price.toLocaleString()}
-                  </p>
-
-                  <button className="mt-2 w-full py-2 text-xs bg-orange-600 cursor-pointer text-white rounded-lg hover:bg-orange-700 transition">
-                    Add to Cart
+              return (
+                <div
+                  key={product.id}
+                  className="relative min-w-45 bg-white border border-zinc-200 rounded-xl overflow-hidden hover:shadow-sm transition"
+                >
+                  <button
+                    onClick={() => {
+                      if (isWishlisted) {
+                        dispatch(removeFromWishlist(product.id));
+                        toast.info("Removed from wishlist");
+                      } else {
+                        dispatch(addToWishlist(product));
+                        toast.success("Added to wishlist");
+                      }
+                    }}
+                    className="absolute top-3 right-3 outline-none cursor-pointer z-10 bg-white/90 p-2 rounded-full shadow text-red-500 hover:scale-110 transition"
+                  >
+                    {isWishlisted ? (
+                      <FaHeart className="text-red-500" />
+                    ) : (
+                      <FaRegHeart />
+                    )}
                   </button>
+
+                  <Link to={`/product/${product.id}`}>
+                    <img
+                      src={product.image}
+                      className="w-full object-cover h-32"
+                      alt={product.name}
+                    />
+
+                    <div className="p-3">
+                      <h3 className="text-sm font-medium text-zinc-800">
+                        {product.name}
+                      </h3>
+
+                      <p className="text-orange-600 font-semibold text-sm mt-1">
+                        ₦{product.price.toLocaleString()}
+                      </p>
+                    </div>
+                  </Link>
+
+                  <div className="px-3 pb-3">
+                    <button
+                      onClick={() => {
+                        if (!user) {
+                          navigate("/login");
+                          return;
+                        }
+
+                        dispatch(addToCart(product));
+                        toast.success("Added to cart");
+                      }}
+                      className="w-full py-2 text-xs bg-orange-600 text-white outline-none cursor-pointer rounded-lg"
+                    >
+                      Add to Cart
+                    </button>
+                  </div>
                 </div>
-              </Link>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>
@@ -137,6 +217,121 @@ const Dashboard = () => {
             <button className="mt-4 md:mt-0 px-6 py-3 bg-orange-600 cursor-pointer hover:bg-orange-500 transition rounded-xl">
               Explore Deals
             </button>
+          </div>
+        </div>
+      </section>
+      <FlashTimer />
+      {/* FEATURED */}
+      <section className="px-6 pb-10">
+        <div className="max-w-7xl mx-auto">
+          <h2 className="text-lg font-semibold mb-4 text-zinc-800">
+            Featured Products
+          </h2>
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {filteredProducts
+              .sort((a, b) => b.rating - a.rating)
+              .slice(0, 4)
+              .map((product) => {
+                const isWishlisted = wishlistItems.some(
+                  (item) => item.id === product.id,
+                );
+
+                return (
+                  <div
+                    key={product.id}
+                    className="relative bg-white border border-zinc-200 rounded-xl overflow-hidden hover:shadow-md transition"
+                  >
+                    <button
+                      onClick={() => {
+                        if (isWishlisted) {
+                          dispatch(removeFromWishlist(product.id));
+                          toast.info("Removed from wishlist");
+                        } else {
+                          dispatch(addToWishlist(product));
+                          toast.success("Added to wishlist");
+                        }
+                      }}
+                      className="absolute top-3 right-3 outline-none cursor-pointer z-10 bg-white/90 p-2 rounded-full shadow text-red-500 hover:scale-110 transition"
+                    >
+                      {isWishlisted ? (
+                        <FaHeart className="text-red-500" />
+                      ) : (
+                        <FaRegHeart />
+                      )}
+                    </button>
+
+                    <Link to={`/product/${product.id}`}>
+                      <img
+                        src={product.image}
+                        className="w-full h-36 object-cover"
+                        alt={product.name}
+                      />
+
+                      <div className="p-3">
+                        <h3 className="text-sm font-medium text-zinc-800">
+                          {product.name}
+                        </h3>
+
+                        <p className="text-orange-600 font-semibold text-sm mt-1">
+                          ₦{product.price.toLocaleString()}
+                        </p>
+
+                        <p className="text-xs text-zinc-500 mt-1 flex items-center gap-1">
+                          <FaStar className="text-orange-500" />
+                          {product.rating} ({product.reviews} reviews)
+                        </p>
+                      </div>
+                    </Link>
+                  </div>
+                );
+              })}
+          </div>
+        </div>
+      </section>
+      <section className="px-6 pb-10">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-8">
+            <h2 className="text-2xl font-bold text-zinc-900">
+              Why Shop With Us
+            </h2>
+            <p className="text-sm text-zinc-500 mt-2">
+              Everything we do is designed to give you a better shopping
+              experience
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-6">
+            <div className="bg-white border border-zinc-200 rounded-2xl p-6 text-center hover:shadow-sm transition">
+              <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-orange-50 flex items-center justify-center">
+                <FaTruck className="text-orange-600 text-xl" />
+              </div>
+              <h3 className="font-semibold text-zinc-900">Fast Delivery</h3>
+              <p className="text-sm text-zinc-500 mt-2">
+                Get your orders delivered quickly and reliably to your doorstep.
+              </p>
+            </div>
+
+            <div className="bg-white border border-zinc-200 rounded-2xl p-6 text-center hover:shadow-sm transition">
+              <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-orange-50 flex items-center justify-center">
+                <FaLock className="text-orange-600 text-xl" />
+              </div>
+              <h3 className="font-semibold text-zinc-900">Secure Payment</h3>
+              <p className="text-sm text-zinc-500 mt-2">
+                Your transactions are protected with safe and trusted checkout
+                systems.
+              </p>
+            </div>
+
+            <div className="bg-white border border-zinc-200 rounded-2xl p-6 text-center hover:shadow-sm transition">
+              <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-orange-50 flex items-center justify-center">
+                <FaHeadset className="text-orange-600 text-xl" />
+              </div>
+              <h3 className="font-semibold text-zinc-900">24/7 Support</h3>
+              <p className="text-sm text-zinc-500 mt-2">
+                Our support team is always available to assist you anytime.
+              </p>
+            </div>
           </div>
         </div>
       </section>
